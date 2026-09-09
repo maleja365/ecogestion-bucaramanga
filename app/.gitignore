@@ -1,0 +1,18 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Variables de entorno (contienen las credenciales de Supabase)
+.env
+.env.local
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

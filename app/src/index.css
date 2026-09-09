@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-fondo: #F5F8F6;
+  --color-tinta: #123C55;
+  --color-tinta-suave: #5B7078;
+  --color-bosque: #0B6E33;
+  --color-musgo: #4DAC16;
+  --color-guayacan: #0696E1;
+  --color-guayacan-suave: #CFEBFB;
+  --color-alerta: #B5533C;
+  --color-borde: #DCE3DE;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-tinta);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Insignia con muesca tipo hoja — elemento firma de la marca */
+.badge-hoja {
+  clip-path: polygon(100% 0%, 100% 70%, 70% 100%, 0% 100%, 0% 0%);
+}
+
+/* Silueta grande de hoja — se usa UNA sola vez por pantalla, en el
+   elemento más importante, para no repetir el mismo recurso en todo. */
+.silueta-hoja-grande {
+  clip-path: polygon(100% 0%, 100% 82%, 82% 100%, 0% 100%, 0% 0%);
+}
+
+/* "Ficha": el bloque de contenido base de la app — plano, sin sombra
+   de SaaS, identificado por una franja de color a la izquierda en
+   vez de una tarjeta blanca genérica con sombra. */
+.ficha {
+  background: #FFFFFF;
+  border-radius: 4px;
+  border: 1px solid var(--color-borde);
+  border-left-width: 4px;
+}
+
+/* Textura de fondo sutil: puntos espaciados, como una cartilla o
+   papel cuadriculado, sin caer en gradientes decorativos genéricos. */
+.textura-papel {
+  background-image: radial-gradient(var(--color-borde) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
