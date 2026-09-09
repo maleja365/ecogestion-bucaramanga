@@ -30,9 +30,9 @@ export default function Login() {
 
       <div className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center justify-center mb-8">
-          <img src="/logo-emblema.png" alt="Ecosmart Residenciales" className="w-36 h-36 object-contain mb-1" />
-          <span className="font-display text-2xl text-center" style={{ color: 'var(--color-bosque)' }}>
+        <div className="flex flex-col items-center justify-center mb-6">
+          <img src="/logo-emblema.png" alt="Ecosmart Residenciales" className="w-40 h-40 sm:w-56 sm:h-56 object-contain -mb-2" />
+          <span className="font-display text-2xl sm:text-3xl text-center" style={{ color: 'var(--color-bosque)' }}>
             Ecosmart Residenciales
           </span>
         </div>

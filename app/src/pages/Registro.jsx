@@ -106,7 +106,7 @@ export default function Registro() {
         Ecosmart Residenciales
       </span>
 
-      <div className="w-full max-w-sm mt-3">
+      <div className="w-full max-w-sm mt-2">
         {registroExitoso ? (
           <div className="bg-white rounded-xl border shadow-sm p-8 text-center" style={{ borderColor: 'var(--color-borde)' }}>
             <span className="w-4 h-4 badge-hoja inline-block mb-3" style={{ backgroundColor: 'var(--color-guayacan)' }} />

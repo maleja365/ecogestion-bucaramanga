@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { InstalarAppProvider } from './context/InstalarAppContext'
 import RutaProtegida from './components/RutaProtegida'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -15,9 +16,10 @@ import Indicadores from './pages/Indicadores'
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+    <InstalarAppProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/recuperar" element={<RecuperarContrasena />} />
@@ -71,7 +73,8 @@ export default function App() {
             }
           />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+        </AuthProvider>
+      </BrowserRouter>
+    </InstalarAppProvider>
   )
 }
