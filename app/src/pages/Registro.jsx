@@ -182,7 +182,6 @@ export default function Registro() {
             required
             value={cedula}
             onChange={(e) => setCedula(e.target.value.replace(/\D/g, ''))}
-            placeholder="Ej: 1098765432"
             className="w-full border px-3 py-1.5 mb-3 text-sm outline-none bg-white"
             style={{ borderColor: 'var(--color-borde)' }}
           />
@@ -193,7 +192,6 @@ export default function Registro() {
             required
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
-            placeholder="Ej: 3001234567"
             className="w-full border px-3 py-1.5 mb-3 text-sm outline-none bg-white"
             style={{ borderColor: 'var(--color-borde)' }}
           />
