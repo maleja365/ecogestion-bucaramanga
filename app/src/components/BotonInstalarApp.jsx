@@ -2,45 +2,33 @@ import { useEffect, useState } from 'react'
 
 export default function BotonInstalarApp() {
   const [promptEvento, setPromptEvento] = useState(null)
-  const [instalada, setInstalada] = useState(false)
   const [descartado, setDescartado] = useState(false)
+  const [yaInstalada, setYaInstalada] = useState(false)
 
   useEffect(() => {
     function alDetectarInstalable(e) {
       e.preventDefault()
       setPromptEvento(e)
     }
-    function alInstalar() {
-      setInstalada(true)
-      setPromptEvento(null)
-    }
 
     window.addEventListener('beforeinstallprompt', alDetectarInstalable)
-    window.addEventListener('appinstalled', alInstalar)
 
-    // Si ya se abrió como app instalada (modo standalone), no mostrar el banner.
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setInstalada(true)
-    }
-
-    // El descarte se recuerda solo durante la sesión del navegador, no
-    // para siempre, así el banner vuelve a aparecer en visitas futuras.
     if (sessionStorage.getItem('ecosmart_banner_instalar_cerrado') === '1') {
       setDescartado(true)
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', alDetectarInstalable)
-      window.removeEventListener('appinstalled', alInstalar)
     }
   }, [])
 
-  if (!promptEvento || instalada || descartado) return null
+  if (!promptEvento || descartado) return null
 
   async function instalar() {
+    if (yaInstalada) return
     promptEvento.prompt()
     await promptEvento.userChoice
-    setPromptEvento(null)
+    setYaInstalada(true)
   }
 
   function descartar() {
@@ -69,10 +57,11 @@ export default function BotonInstalarApp() {
         </div>
         <button
           onClick={instalar}
-          className="text-sm font-medium px-4 py-2 rounded-full text-white flex-shrink-0 whitespace-nowrap"
+          disabled={yaInstalada}
+          className="text-sm font-medium px-4 py-2 rounded-full text-white flex-shrink-0 whitespace-nowrap disabled:opacity-70"
           style={{ backgroundColor: 'var(--color-bosque)' }}
         >
-          Instalar app
+          {yaInstalada ? '¡Listo! Ya instalada' : 'Instalar app'}
         </button>
         <button
           onClick={descartar}

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 
 export default function Residentes() {
-  const { esAdministracion, esSuperAdmin } = useAuth()
+  const { esAdministracion, cargando: cargandoAuth } = useAuth()
   const [residentes, setResidentes] = useState([])
   const [cargando, setCargando] = useState(true)
 
@@ -23,20 +24,33 @@ export default function Residentes() {
   }, [])
 
   async function aprobar(id) {
-    await supabase.from('perfiles').update({ aprobado: true }).eq('id', id)
+    await supabase.from('perfiles').update({ aprobado: true, rechazado: false }).eq('id', id)
     cargarResidentes()
   }
 
-  async function rechazar(id) {
-    // "Rechazar" no borra la cuenta (no tenemos permisos de admin de Auth
-    // desde el frontend); simplemente la deja sin aprobar y visible aquí
-    // para que la administración decida si contactar a la persona.
+  async function noAdmitir(id) {
+    if (!confirm('¿Confirmas que esta persona no pertenece a tu conjunto? Quedará bloqueada permanentemente.')) return
+    await supabase.from('perfiles').update({ rechazado: true, aprobado: false }).eq('id', id)
+    cargarResidentes()
+  }
+
+  async function deshacerRechazo(id) {
+    await supabase.from('perfiles').update({ rechazado: false }).eq('id', id)
+    cargarResidentes()
+  }
+
+  async function revocarAcceso(id) {
     await supabase.from('perfiles').update({ aprobado: false }).eq('id', id)
     cargarResidentes()
   }
 
-  const pendientes = residentes.filter((r) => !r.aprobado)
+  const pendientes = residentes.filter((r) => !r.aprobado && !r.rechazado)
   const aprobados = residentes.filter((r) => r.aprobado)
+  const rechazados = residentes.filter((r) => r.rechazado)
+
+  if (!cargandoAuth && !esAdministracion) {
+    return <Navigate to="/" replace />
+  }
 
   return (
     <div>
@@ -59,17 +73,24 @@ export default function Residentes() {
           ) : (
             <div className="space-y-3 mb-10">
               {pendientes.map((r) => (
-                <div key={r.id} className="ficha p-4 flex items-center justify-between" style={{ borderLeftColor: 'var(--color-alerta)' }}>
+                <div key={r.id} className="bg-white rounded-2xl p-4 border flex items-center justify-between" style={{ borderColor: 'var(--color-borde)' }}>
                   <div>
-                    <p className="font-medium" style={{ color: 'var(--color-tinta)' }}>{r.nombre_completo}</p>
-                    <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--color-tinta-suave)' }}>
-                      C.C. {r.cedula || 'Sin registrar'}
+                    <p className="font-medium" style={{ color: 'var(--color-tinta)' }}>
+                      CC {r.cedula || 'no registrada'} ·{' '}
+                      <span style={{ textTransform: 'capitalize' }}>{r.nombre_completo}</span>
                     </p>
                     <p className="text-xs font-mono" style={{ color: 'var(--color-tinta-suave)' }}>
                       Registrado el {new Date(r.created_at).toLocaleDateString('es-CO')}
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button
+                      onClick={() => noAdmitir(r.id)}
+                      className="text-xs font-medium rounded-full px-3 py-1.5 border"
+                      style={{ borderColor: 'var(--color-alerta)', color: 'var(--color-alerta)' }}
+                    >
+                      No admitir
+                    </button>
                     <button
                       onClick={() => aprobar(r.id)}
                       className="text-xs font-medium rounded-full px-3 py-1.5 text-white"
@@ -86,23 +107,52 @@ export default function Residentes() {
           <h2 className="font-display text-lg mb-3" style={{ color: 'var(--color-tinta)' }}>
             Residentes aprobados ({aprobados.length})
           </h2>
-          <div className="space-y-2">
-            {aprobados.map((r) => (
-              <div key={r.id} className="ficha p-3 flex items-center justify-between" style={{ borderLeftColor: 'var(--color-musgo)' }}>
-                <div>
-                  <p className="text-sm" style={{ color: 'var(--color-tinta)' }}>{r.nombre_completo}</p>
-                  <p className="text-xs font-mono" style={{ color: 'var(--color-tinta-suave)' }}>C.C. {r.cedula || 'Sin registrar'}</p>
+          {aprobados.length === 0 ? (
+            <p className="text-sm mb-8" style={{ color: 'var(--color-tinta-suave)' }}>Todavía no hay residentes aprobados.</p>
+          ) : (
+            <div className="space-y-2 mb-10">
+              {aprobados.map((r) => (
+                <div key={r.id} className="bg-white rounded-xl p-3 border flex items-center justify-between" style={{ borderColor: 'var(--color-borde)' }}>
+                  <p className="text-sm" style={{ color: 'var(--color-tinta)' }}>
+                    CC {r.cedula || 'no registrada'} ·{' '}
+                    <span style={{ textTransform: 'capitalize' }}>{r.nombre_completo}</span>
+                  </p>
+                  <button
+                    onClick={() => revocarAcceso(r.id)}
+                    className="text-xs font-medium"
+                    style={{ color: 'var(--color-alerta)' }}
+                  >
+                    Revocar acceso
+                  </button>
                 </div>
-                <button
-                  onClick={() => rechazar(r.id)}
-                  className="text-xs font-medium"
-                  style={{ color: 'var(--color-alerta)' }}
-                >
-                  Revocar acceso
-                </button>
+              ))}
+            </div>
+          )}
+
+          {rechazados.length > 0 && (
+            <>
+              <h2 className="font-display text-lg mb-3" style={{ color: 'var(--color-tinta)' }}>
+                No admitidos ({rechazados.length})
+              </h2>
+              <div className="space-y-2">
+                {rechazados.map((r) => (
+                  <div key={r.id} className="bg-white rounded-xl p-3 border flex items-center justify-between" style={{ borderColor: 'var(--color-borde)' }}>
+                    <p className="text-sm" style={{ color: 'var(--color-tinta-suave)' }}>
+                      CC {r.cedula || 'no registrada'} ·{' '}
+                      <span style={{ textTransform: 'capitalize' }}>{r.nombre_completo}</span>
+                    </p>
+                    <button
+                      onClick={() => deshacerRechazo(r.id)}
+                      className="text-xs font-medium"
+                      style={{ color: 'var(--color-guayacan)' }}
+                    >
+                      Fue un error, deshacer
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -33,7 +33,7 @@ const NOMBRES_CATEGORIA = {
 }
 
 export default function Indicadores() {
-  const { esAdministracion, esSuperAdmin, cargando: cargandoAuth } = useAuth()
+  const { esSuperAdmin, cargando: cargandoAuth } = useAuth()
   const [incidentes, setIncidentes] = useState([])
   const [residentes, setResidentes] = useState([])
   const [participaciones, setParticipaciones] = useState([])
@@ -53,7 +53,7 @@ export default function Indicadores() {
     cargar()
   }, [])
 
-  if (!cargandoAuth && !esAdministracion && !esSuperAdmin) {
+  if (!cargandoAuth && !esSuperAdmin) {
     return <Navigate to="/" replace />
   }
 

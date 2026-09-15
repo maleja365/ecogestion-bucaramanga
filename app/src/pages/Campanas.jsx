@@ -13,12 +13,13 @@ export default function Campanas() {
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [verInscritosDe, setVerInscritosDe] = useState(null)
 
   async function cargarDatos() {
     setCargando(true)
     const { data: camps } = await supabase
       .from('campanas')
-      .select('*, participaciones_campana(count)')
+      .select('*, participaciones_campana(usuario_id, fecha_inscripcion, perfiles(nombre_completo, cedula))')
       .order('fecha_inicio', { ascending: true })
     setCampanas(camps || [])
 
@@ -75,8 +76,8 @@ export default function Campanas() {
         {esAdministracion && (
           <button
             onClick={() => setMostrarForm((v) => !v)}
-            className="rounded-full px-4 py-2 text-sm font-medium text-white"
-            style={{ backgroundColor: 'var(--color-bosque)' }}
+            className="rounded-full px-4 py-2 text-sm font-medium"
+            style={{ backgroundColor: 'var(--color-guayacan)', color: 'var(--color-tinta)' }}
           >
             {mostrarForm ? 'Cancelar' : '+ Nueva campaña'}
           </button>
@@ -84,7 +85,11 @@ export default function Campanas() {
       </div>
 
       {mostrarForm && (
-        <form onSubmit={handleCrear} className="ficha p-6 mb-8 space-y-4" style={{ borderLeftColor: 'var(--color-guayacan)' }}>
+        <form
+          onSubmit={handleCrear}
+          className="bg-white rounded-2xl p-6 border mb-8 space-y-4"
+          style={{ borderColor: 'var(--color-borde)' }}
+        >
           <div>
             <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-tinta-suave)' }}>Título</label>
             <input
@@ -92,7 +97,7 @@ export default function Campanas() {
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               placeholder="Ej: Jornada de separación en la fuente"
-              className="w-full border px-3 py-2 text-sm outline-none bg-white"
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
               style={{ borderColor: 'var(--color-borde)' }}
             />
           </div>
@@ -103,7 +108,7 @@ export default function Campanas() {
               rows={3}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full border px-3 py-2 text-sm outline-none bg-white"
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
               style={{ borderColor: 'var(--color-borde)' }}
             />
           </div>
@@ -115,7 +120,7 @@ export default function Campanas() {
                 required
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
-                className="w-full border px-3 py-2 text-sm outline-none bg-white"
+                className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 style={{ borderColor: 'var(--color-borde)' }}
               />
             </div>
@@ -125,7 +130,7 @@ export default function Campanas() {
                 type="date"
                 value={fechaFin}
                 onChange={(e) => setFechaFin(e.target.value)}
-                className="w-full border px-3 py-2 text-sm outline-none bg-white"
+                className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 style={{ borderColor: 'var(--color-borde)' }}
               />
             </div>
@@ -151,16 +156,53 @@ export default function Campanas() {
         <div className="grid sm:grid-cols-2 gap-4">
           {campanas.map((c) => {
             const inscrito = misInscripciones.has(c.id)
-            const totalParticipantes = c.participaciones_campana?.[0]?.count ?? 0
+            const inscritos = c.participaciones_campana || []
+            const totalParticipantes = inscritos.length
             return (
-              <div key={c.id} className="ficha p-5 flex flex-col" style={{ borderLeftColor: inscrito ? 'var(--color-musgo)' : 'var(--color-guayacan)' }}>
+              <div key={c.id} className="bg-white rounded-2xl p-5 border flex flex-col" style={{ borderColor: 'var(--color-borde)' }}>
                 <h3 className="font-medium" style={{ color: 'var(--color-tinta)' }}>{c.titulo}</h3>
                 <p className="text-sm mt-1 flex-1" style={{ color: 'var(--color-tinta-suave)' }}>{c.descripcion}</p>
                 <p className="text-xs font-mono mt-3" style={{ color: 'var(--color-tinta-suave)' }}>
                   {new Date(c.fecha_inicio).toLocaleDateString('es-CO')}
                   {c.fecha_fin && ` — ${new Date(c.fecha_fin).toLocaleDateString('es-CO')}`}
-                  {' · '}{totalParticipantes} inscritos
+                  {' · '}
+                  {esAdministracion ? (
+                    <button
+                      onClick={() => setVerInscritosDe(verInscritosDe === c.id ? null : c.id)}
+                      className="underline"
+                      style={{ color: 'var(--color-guayacan)' }}
+                    >
+                      {totalParticipantes} inscritos
+                    </button>
+                  ) : (
+                    `${totalParticipantes} inscritos`
+                  )}
                 </p>
+
+                {esAdministracion && verInscritosDe === c.id && (
+                  <div className="mt-2 rounded-lg p-3" style={{ backgroundColor: 'var(--color-fondo)' }}>
+                    {inscritos.length === 0 ? (
+                      <p className="text-xs" style={{ color: 'var(--color-tinta-suave)' }}>Nadie se ha inscrito todavía.</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {inscritos.map((i) => (
+                          <li key={i.usuario_id} className="text-xs flex justify-between" style={{ color: 'var(--color-tinta)' }}>
+                            <span>
+                              CC {i.perfiles?.cedula || 'no registrada'} ·{' '}
+                              <span style={{ textTransform: 'capitalize' }}>
+                                {i.perfiles?.nombre_completo || 'Residente'}
+                              </span>
+                            </span>
+                            <span style={{ color: 'var(--color-tinta-suave)' }}>
+                              {new Date(i.fecha_inscripcion).toLocaleDateString('es-CO')}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+
                 {!esAdministracion && (
                   <button
                     onClick={() => inscribirse(c.id)}

@@ -45,7 +45,7 @@ export default function NotificacionesBell() {
       setNotificaciones((prev) => prev.map((x) => (x.id === n.id ? { ...x, leida: true } : x)))
     }
     setAbierto(false)
-    navigate('/incidentes')
+    navigate(n.incidente_id ? '/incidentes' : '/campanas')
   }
 
   async function marcarTodasLeidas() {
@@ -80,7 +80,7 @@ export default function NotificacionesBell() {
 
       {abierto && (
         <div
-          className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl border shadow-lg z-50"
+         className="fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-16 sm:top-auto sm:mt-2 sm:w-80 max-w-[calc(100vw-1rem)] max-h-96 overflow-y-auto bg-white rounded-2xl border shadow-lg z-50"
           style={{ borderColor: 'var(--color-borde)' }}
         >
           <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'var(--color-borde)' }}>
