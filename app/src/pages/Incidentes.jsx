@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import EstadoBadge from '../components/EstadoBadge'
@@ -12,7 +13,7 @@ const CATEGORIAS = [
 ]
 
 export default function Incidentes() {
-  const { perfil, esAdministracion } = useAuth()
+  const { perfil, esAdministracion, esSuperAdmin, cargando: cargandoAuth } = useAuth()
   const [incidentes, setIncidentes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -95,6 +96,10 @@ export default function Incidentes() {
     setRespondiendoId(null)
     setTextoRespuesta('')
     cargarIncidentes()
+  }
+
+  if (!cargandoAuth && esSuperAdmin) {
+    return <Navigate to="/" replace />
   }
 
   return (

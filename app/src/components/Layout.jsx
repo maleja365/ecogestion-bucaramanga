@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import BotonInstalarApp from './BotonInstalarApp'
 import NotificacionesBell from './NotificacionesBell'
 
 export default function Layout({ children }) {
@@ -35,7 +34,6 @@ export default function Layout({ children }) {
               </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-              <BotonInstalarApp />
               <NotificacionesBell />
               <button
                 onClick={handleSalir}

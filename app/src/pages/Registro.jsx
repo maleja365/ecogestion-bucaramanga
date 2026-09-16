@@ -57,6 +57,11 @@ export default function Registro() {
       return
     }
 
+    if (!/^[0-9]{7,15}$/.test(telefono)) {
+      setError('Ingresa un número de teléfono válido (solo números, entre 7 y 15 dígitos).')
+      return
+    }
+
     if (!contrasenaEsValida(password)) {
       setError('La contraseña no cumple los requisitos de seguridad.')
       return
@@ -188,10 +193,12 @@ export default function Registro() {
 
           <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-tinta-suave)' }}>Número de teléfono</label>
           <input
-            type="tel"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             required
             value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
+            onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ''))}
             className="w-full border px-3 py-1.5 mb-3 text-sm outline-none bg-white"
             style={{ borderColor: 'var(--color-borde)' }}
           />
