@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { traducirErrorAuth } from '../lib/erroresAuth'
 import CampoContrasena from '../components/CampoContrasena'
 import RequisitosContrasena, { contrasenaEsValida } from '../components/RequisitosContrasena'
 
@@ -87,7 +88,7 @@ export default function Registro() {
     setCargando(false)
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(traducirErrorAuth(signUpError.message))
       return
     }
 
