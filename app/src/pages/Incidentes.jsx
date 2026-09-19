@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import EstadoBadge from '../components/EstadoBadge'
@@ -13,7 +12,7 @@ const CATEGORIAS = [
 ]
 
 export default function Incidentes() {
-  const { perfil, esAdministracion, esSuperAdmin, cargando: cargandoAuth } = useAuth()
+  const { perfil, esAdministracion, esSuperAdmin } = useAuth()
   const [incidentes, setIncidentes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -98,10 +97,6 @@ export default function Incidentes() {
     cargarIncidentes()
   }
 
-  if (!cargandoAuth && esSuperAdmin) {
-    return <Navigate to="/" replace />
-  }
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -111,13 +106,15 @@ export default function Incidentes() {
             Reporta y consulta el estado de los problemas en tu conjunto.
           </p>
         </div>
-        <button
-          onClick={() => setMostrarForm((v) => !v)}
-          className="rounded-full px-4 py-2 text-sm font-medium text-white"
-          style={{ backgroundColor: 'var(--color-guayacan)', color: 'var(--color-tinta)' }}
-        >
-          {mostrarForm ? 'Cancelar' : '+ Reportar'}
-        </button>
+        {!esSuperAdmin && (
+          <button
+            onClick={() => setMostrarForm((v) => !v)}
+            className="rounded-full px-4 py-2 text-sm font-medium text-white"
+            style={{ backgroundColor: 'var(--color-guayacan)', color: 'var(--color-tinta)' }}
+          >
+            {mostrarForm ? 'Cancelar' : '+ Reportar'}
+          </button>
+        )}
       </div>
 
       {mostrarForm && (

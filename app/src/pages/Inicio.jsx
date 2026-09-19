@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 
 export default function Inicio() {
-  const { perfil } = useAuth()
+  const { perfil, esSuperAdmin } = useAuth()
   const [stats, setStats] = useState({ pendientes: 0, resueltos: 0, campanasActivas: 0 })
 
   useEffect(() => {
@@ -67,13 +67,15 @@ export default function Inicio() {
       </div>
 
       <div className="flex gap-3">
-        <Link
-          to="/incidentes"
-          className="rounded-full px-5 py-2.5 text-sm font-medium text-white"
-          style={{ backgroundColor: 'var(--color-bosque)' }}
-        >
-          Reportar un incidente
-        </Link>
+        {!esSuperAdmin && (
+          <Link
+            to="/incidentes"
+            className="rounded-full px-5 py-2.5 text-sm font-medium text-white"
+            style={{ backgroundColor: 'var(--color-bosque)' }}
+          >
+            Reportar un incidente
+          </Link>
+        )}
         <Link
           to="/campanas"
           className="rounded-full px-5 py-2.5 text-sm font-medium border"
