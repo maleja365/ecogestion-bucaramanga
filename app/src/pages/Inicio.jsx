@@ -34,8 +34,12 @@ export default function Inicio() {
           Hola, {perfil?.nombre_completo?.split(' ')[0]}
         </h1>
         <p className="text-sm mt-2 max-w-md" style={{ color: 'var(--color-tinta-suave)' }}>
-          Esto es lo que pasa en <strong style={{ color: 'var(--color-tinta)' }}>{perfil?.conjunto_nombre || 'tu conjunto'}</strong>.
-          Reporta lo que ves y participa en las campañas para que la separación de residuos funcione de verdad.
+          {esSuperAdmin ? (
+            <>Esto es lo que pasa en <strong style={{ color: 'var(--color-tinta)' }}>los conjuntos de Bucaramanga y su área metropolitana</strong>.</>
+          ) : (
+            <>Esto es lo que pasa en <strong style={{ color: 'var(--color-tinta)' }}>{perfil?.conjunto_nombre || 'tu conjunto'}</strong>.
+            Reporta lo que ves y participa en las campañas para que la separación de residuos funcione de verdad.</>
+          )}
         </p>
       </div>
 

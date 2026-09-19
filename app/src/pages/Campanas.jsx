@@ -19,7 +19,7 @@ export default function Campanas() {
     setCargando(true)
     const { data: camps } = await supabase
       .from('campanas')
-      .select('*, participaciones_campana(usuario_id, fecha_inscripcion, perfiles(nombre_completo, cedula))')
+      .select('*, participaciones_campana(usuario_id, fecha_inscripcion, perfiles(nombre_completo, cedula)), conjuntos_residenciales(nombre)')
       .order('fecha_inicio', { ascending: true })
     setCampanas(camps || [])
 
@@ -161,6 +161,11 @@ export default function Campanas() {
             return (
               <div key={c.id} className="bg-white rounded-2xl p-5 border flex flex-col" style={{ borderColor: 'var(--color-borde)' }}>
                 <h3 className="font-medium" style={{ color: 'var(--color-tinta)' }}>{c.titulo}</h3>
+                {esSuperAdmin && c.conjuntos_residenciales?.nombre && (
+                  <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--color-guayacan)' }}>
+                    {c.conjuntos_residenciales.nombre}
+                  </p>
+                )}
                 <p className="text-sm mt-1 flex-1" style={{ color: 'var(--color-tinta-suave)' }}>{c.descripcion}</p>
                 <p className="text-xs font-mono mt-3" style={{ color: 'var(--color-tinta-suave)' }}>
                   {new Date(c.fecha_inicio).toLocaleDateString('es-CO')}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import EstadoBadge from '../components/EstadoBadge'
@@ -12,7 +13,7 @@ const CATEGORIAS = [
 ]
 
 export default function Incidentes() {
-  const { perfil, esAdministracion, esSuperAdmin } = useAuth()
+  const { perfil, esAdministracion, esSuperAdmin, cargando: cargandoAuth } = useAuth()
   const [incidentes, setIncidentes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -23,7 +24,6 @@ export default function Incidentes() {
   const [enviando, setEnviando] = useState(false)
   const [subiendoFoto, setSubiendoFoto] = useState(false)
 
-  // Respuesta de administración: qué incidente se está respondiendo ahora mismo
   const [respondiendoId, setRespondiendoId] = useState(null)
   const [textoRespuesta, setTextoRespuesta] = useState('')
 
@@ -31,7 +31,7 @@ export default function Incidentes() {
     setCargando(true)
     const { data } = await supabase
       .from('incidentes')
-      .select('*, perfiles(nombre_completo)')
+      .select('*, perfiles(nombre_completo), conjuntos_residenciales(nombre)')
       .order('created_at', { ascending: false })
     setIncidentes(data || [])
     setCargando(false)
@@ -213,6 +213,9 @@ export default function Incidentes() {
                   <p className="text-sm mt-1" style={{ color: 'var(--color-tinta-suave)' }}>{inc.descripcion}</p>
                   <p className="text-xs font-mono mt-2" style={{ color: 'var(--color-tinta-suave)' }}>
                     {inc.perfiles?.nombre_completo} · {new Date(inc.created_at).toLocaleDateString('es-CO')}
+                    {esSuperAdmin && inc.conjuntos_residenciales?.nombre && (
+                      <> · <span style={{ color: 'var(--color-guayacan)' }}>{inc.conjuntos_residenciales.nombre}</span></>
+                    )}
                   </p>
                   {inc.foto_url && (
                     <a href={inc.foto_url} target="_blank" rel="noreferrer" className="inline-block mt-3">
