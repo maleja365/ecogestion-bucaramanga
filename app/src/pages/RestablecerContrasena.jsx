@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import CampoContrasena from '../components/CampoContrasena'
 import RequisitosContrasena, { contrasenaEsValida } from '../components/RequisitosContrasena'
 
 export default function RestablecerContrasena() {
   const [listo, setListo] = useState(false)
+  const [linkExpirado, setLinkExpirado] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [exito, setExito] = useState(false)
@@ -13,6 +14,21 @@ export default function RestablecerContrasena() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Supabase pone el error directamente en el hash de la URL cuando el
+    // link de recuperación ya expiró o ya fue usado, ej:
+    // #error=access_denied&error_code=otp_expired&error_description=...
+    const hash = window.location.hash
+    if (hash.includes('error=')) {
+      const params = new URLSearchParams(hash.replace('#', ''))
+      const codigo = params.get('error_code')
+      if (codigo === 'otp_expired') {
+        setLinkExpirado(true)
+      } else {
+        setLinkExpirado(true) // cualquier otro error también lo tratamos como link inválido
+      }
+      return
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setListo(true)
     })
@@ -53,7 +69,22 @@ export default function RestablecerContrasena() {
 
       <div className="w-full max-w-sm mt-2">
         <div className="bg-white rounded-xl border shadow-sm p-5" style={{ borderColor: 'var(--color-borde)' }}>
-          {!listo ? (
+          {linkExpirado ? (
+            <div className="text-center">
+              <h2 className="font-display text-xl mb-2" style={{ color: 'var(--color-tinta)' }}>Enlace vencido</h2>
+              <p className="text-sm mb-5" style={{ color: 'var(--color-tinta-suave)' }}>
+                Este enlace de recuperación ya expiró o ya fue usado antes.
+                Vuelve a iniciar sesión y solicita uno nuevo.
+              </p>
+              <Link
+                to="/login"
+                className="inline-block rounded-full px-5 py-2 text-sm font-medium text-white"
+                style={{ backgroundColor: 'var(--color-bosque)' }}
+              >
+                Volver a iniciar sesión
+              </Link>
+            </div>
+          ) : !listo ? (
             <p className="text-sm text-center font-mono" style={{ color: 'var(--color-tinta-suave)' }}>
               Verificando el enlace...
             </p>
