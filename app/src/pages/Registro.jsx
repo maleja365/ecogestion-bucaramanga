@@ -121,6 +121,9 @@ export default function Registro() {
               Te enviamos un enlace de confirmación a <strong>{email}</strong>.
               Ábrelo para activar tu cuenta y luego regresa a iniciar sesión.
             </p>
+            <p className="text-xs mt-3 rounded-lg px-3 py-2" style={{ backgroundColor: 'var(--color-guayacan-suave)', color: 'var(--color-tinta)' }}>
+              💡 Si no lo ves en unos minutos, revisa también tu carpeta de <strong>Spam o No deseado</strong>.
+            </p>
             <Link
               to="/login"
               className="inline-block mt-6 rounded-full px-5 py-2 text-sm font-medium text-white"
