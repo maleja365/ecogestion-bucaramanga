@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 
 export default function Campanas() {
-  const { perfil, esAdministracion } = useAuth()
+  const { perfil, esAdministracion, esSuperAdmin } = useAuth()
   const [campanas, setCampanas] = useState([])
   const [misInscripciones, setMisInscripciones] = useState(new Set())
   const [cargando, setCargando] = useState(true)
@@ -203,7 +203,7 @@ export default function Campanas() {
                   </div>
                 )}
 
-                {!esAdministracion && (
+                {!esAdministracion && !esSuperAdmin && (
                   <button
                     onClick={() => inscribirse(c.id)}
                     disabled={inscrito}
