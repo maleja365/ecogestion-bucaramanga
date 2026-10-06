@@ -154,13 +154,27 @@ export default function Campanas() {
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {campanas.map((c) => {
+          {(() => {
+            const hoy = new Date()
+            hoy.setHours(0, 0, 0, 0)
+            return campanas.map((c) => {
             const inscrito = misInscripciones.has(c.id)
             const inscritos = c.participaciones_campana || []
             const totalParticipantes = inscritos.length
+            const finalizada = c.fecha_fin ? new Date(`${c.fecha_fin}T00:00:00`) < hoy : false
             return (
               <div key={c.id} className="bg-white rounded-2xl p-5 border flex flex-col" style={{ borderColor: 'var(--color-borde)' }}>
-                <h3 className="font-medium" style={{ color: 'var(--color-tinta)' }}>{c.titulo}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium" style={{ color: 'var(--color-tinta)' }}>{c.titulo}</h3>
+                  {finalizada && (
+                    <span
+                      className="text-[10px] font-medium uppercase tracking-wide px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: '#E4E0D6', color: 'var(--color-tinta-suave)' }}
+                    >
+                      Finalizada
+                    </span>
+                  )}
+                </div>
                 {esSuperAdmin && c.conjuntos_residenciales?.nombre && (
                   <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--color-guayacan)' }}>
                     {c.conjuntos_residenciales.nombre}
@@ -211,20 +225,23 @@ export default function Campanas() {
                 {!esAdministracion && !esSuperAdmin && (
                   <button
                     onClick={() => inscribirse(c.id)}
-                    disabled={inscrito}
+                    disabled={inscrito || finalizada}
                     className="mt-4 rounded-full px-4 py-2 text-sm font-medium self-start disabled:opacity-60"
                     style={
                       inscrito
                         ? { backgroundColor: '#DCE9DE', color: '#2C5E3A' }
+                        : finalizada
+                        ? { backgroundColor: '#E4E0D6', color: 'var(--color-tinta-suave)' }
                         : { backgroundColor: 'var(--color-bosque)', color: 'white' }
                     }
                   >
-                    {inscrito ? 'Ya estás inscrito' : 'Participar'}
+                    {inscrito ? 'Ya estás inscrito' : finalizada ? 'Campaña finalizada' : 'Participar'}
                   </button>
                 )}
               </div>
             )
-          })}
+          })
+          })()}
         </div>
       )}
     </div>
